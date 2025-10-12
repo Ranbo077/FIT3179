@@ -5,7 +5,16 @@
     "subtitle": "ABS Marriages & Divorces 2024 · unit: per 1,000 (age 16+)"
   },
   "data": {
-    "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv"
+    "values": [
+      {"state": "New South Wales", "marriage_rate_per_1000_2024": 3.91, "divorce_rate_per_1000_2024": 1.41},
+      {"state": "Victoria", "marriage_rate_per_1000_2024": 3.52, "divorce_rate_per_1000_2024": 1.57},
+      {"state": "Queensland", "marriage_rate_per_1000_2024": 1.39, "divorce_rate_per_1000_2024": 0.58},
+      {"state": "South Australia", "marriage_rate_per_1000_2024": 7.03, "divorce_rate_per_1000_2024": 2.93},
+      {"state": "Western Australia", "marriage_rate_per_1000_2024": 0.84, "divorce_rate_per_1000_2024": 0.33},
+      {"state": "Tasmania", "marriage_rate_per_1000_2024": 1.29, "divorce_rate_per_1000_2024": 0.52},
+      {"state": "Northern Territory", "marriage_rate_per_1000_2024": 6.22, "divorce_rate_per_1000_2024": 4.88},
+      {"state": "Australian Capital Territory", "marriage_rate_per_1000_2024": 4.5, "divorce_rate_per_1000_2024": 1.8}
+    ]
   },
   "layer": [
     {
