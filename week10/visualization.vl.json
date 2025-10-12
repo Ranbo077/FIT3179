@@ -1,0 +1,81 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Marriage vs Divorce Rates by State, 2024",
+    "subtitle": "ABS Marriages & Divorces 2024 · unit: per 1,000 (age 16+)"
+  },
+  "data": {
+    "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv"
+  },
+  "layer": [
+    {
+      "params": [
+        {
+          "name": "rate_filter",
+          "select": {"type": "point", "fields": ["RateType"], "empty": "all"},
+          "bind": "legend"
+        }
+      ],
+      "transform": [
+        {
+          "fold": ["marriage_rate_per_1000_2024", "divorce_rate_per_1000_2024"],
+          "as": ["RateType", "Rate"]
+        },
+        {
+          "calculate": "datum['State/Territory'] || datum.State || datum.state || datum['State '] || 'Unknown'",
+          "as": "State"
+        },
+        {"filter": {"param": "rate_filter"}}
+      ],
+      "mark": {"type": "bar"},
+      "encoding": {
+        "x": {
+          "field": "State",
+          "type": "nominal",
+          "title": "State/Territory",
+          "sort": "-y"
+        },
+        "xOffset": {"field": "RateType"},
+        "y": {
+          "field": "Rate",
+          "type": "quantitative",
+          "title": "Rate per 1,000"
+        },
+        "color": {
+          "field": "RateType",
+          "type": "nominal",
+          "title": "Rate Type",
+          "scale": {
+            "domain": [
+              "marriage_rate_per_1000_2024",
+              "divorce_rate_per_1000_2024"
+            ],
+            "range": ["#1f77b4", "#ff7f0e"]
+          }
+        },
+        "tooltip": [
+          {"field": "State", "title": "State"},
+          {"field": "RateType", "title": "Type"},
+          {"field": "Rate", "title": "Rate per 1,000", "format": ".1f"}
+        ]
+      }
+    },
+    {
+      "mark": {"type": "rule", "color": "red", "strokeDash": [4, 2]},
+      "encoding": {"y": {"datum": 5.5}}
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 5,
+        "dy": -5,
+        "color": "red"
+      },
+      "encoding": {"y": {"datum": 5.5}, "text": {"value": "National Avg ≈ 5.5"}}
+    }
+  ],
+  "width": 720,
+  "height": 480,
+  "config": {}
+}
