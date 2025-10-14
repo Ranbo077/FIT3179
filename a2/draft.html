@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>FIT3179 Week 9 & 10</title>
+  <title>Marriage and Divorce Rates Across Australia (2024)</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@6.2.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@6.1.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@7.0.2"></script>
@@ -19,12 +19,74 @@
       margin: 0 auto !important;
       display: block !important;
     }
+    .map-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      margin: 28px auto;
+      max-width: 980px;
+    }
+    #map {
+      flex-shrink: 0;
+    }
+    .filter-container {
+      margin-top: 50px;
+      min-width: 200px;
+    }
+    .filter-container label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: #333;
+    }
+    .filter-container select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+    }
+    .dashboard-footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+      background-color: #f9f9f9;
+    }
+    .dashboard-footer p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
-  <h2>FIT3179 Week 9 & 10 Visualisations</h2>
-  <div id="map" class="vis"></div>
+  <h2>Marriage and Divorce Rates Across Australia (2024)</h2>
+  <div class="map-container">
+    <div id="map" class="vis"></div>
+    <div class="filter-container">
+      <label for="state-select">Select State:</label>
+      <select id="state-select">
+        <option value="All States">All States</option>
+        <option value="New South Wales">New South Wales</option>
+        <option value="Victoria">Victoria</option>
+        <option value="Queensland">Queensland</option>
+        <option value="South Australia">South Australia</option>
+        <option value="Western Australia">Western Australia</option>
+        <option value="Tasmania">Tasmania</option>
+        <option value="Northern Territory">Northern Territory</option>
+        <option value="Australian Capital Territory">Australian Capital Territory</option>
+      </select>
+    </div>
+  </div>
   <div id="chart" class="vis"></div>
+
+  <footer class="dashboard-footer">
+    <p>This dashboard allows comparison of marriage and divorce rates across Australian states based on ABS 2024 data.</p>
+  </footer>
 
   <script>
     // ---- Week 9 Map (Australia Marriage Rate by State) ----
@@ -32,28 +94,13 @@
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "title": {
         "text": "Australia — Marriage rate by state, 2024",
-        "subtitle": "ABS Marriages & Divorces 2024 · unit: per 1,000 (age 16+)"
+        "subtitle": "Data Source: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"
       },
-      "width": 720,
-      "height": 520,
+      "width": 580,
+      "height": 420,
       "params": [
         {
           "name": "state_filter",
-          "bind": {
-            "input": "select",
-            "options": [
-              "All States",
-              "New South Wales",
-              "Victoria",
-              "Queensland",
-              "South Australia",
-              "Western Australia",
-              "Tasmania",
-              "Northern Territory",
-              "Australian Capital Territory"
-            ],
-            "name": "Select State: "
-          },
           "value": "All States"
         }
       ],
@@ -65,7 +112,7 @@
               "extent": [[110, -45], [160, -10]]
             }
           },
-          "mark": {"type": "geoshape", "stroke": "#dbe3ea", "strokeWidth": 0.6, "fill": null, "opacity": 0.7, "clip": true}
+          "mark": {"type": "geoshape", "stroke": "#8fa0a8", "strokeWidth": 0.8, "fill": null, "opacity": 0.9, "clip": true}
         },
         {
           "data": {
@@ -90,7 +137,7 @@
               "filter": "state_filter == 'All States' || datum['properties.name'] == state_filter"
             }
           ],
-          "projection": {"type": "mercator", "center": [133, -28], "scale": 900},
+          "projection": {"type": "mercator", "center": [133, -28], "scale": 800},
           "mark": {"type": "geoshape", "stroke": "#ffffff", "strokeWidth": 1},
           "encoding": {
             "color": {
@@ -114,7 +161,7 @@
     const week10Chart = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "title": {"text": "Marriage vs Divorce Rates by State, 2024",
-                "subtitle": "ABS Marriages & Divorces 2024 · unit: per 1,000 (age 16+)"},
+                "subtitle": "Data Source: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"},
       "data": {
         "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv"
       },
@@ -151,25 +198,27 @@
       "height": 480
     };
 
-    // Render both visualizations with center alignment
+    // Render both visualizations
+    let mapView;
+
     vegaEmbed("#map", week9Map, {
       actions: false,
       renderer: "svg"
     }).then(result => {
-      // Center the visualization
-      const container = document.getElementById("map");
-      container.style.display = "flex";
-      container.style.justifyContent = "center";
+      mapView = result.view;
     });
 
     vegaEmbed("#chart", week10Chart, {
       actions: false,
       renderer: "svg"
-    }).then(result => {
-      // Center the visualization
-      const container = document.getElementById("chart");
-      container.style.display = "flex";
-      container.style.justifyContent = "center";
+    });
+
+    // Add custom filter control
+    document.getElementById('state-select').addEventListener('change', function(event) {
+      const selectedState = event.target.value;
+      if (mapView) {
+        mapView.signal('state_filter', selectedState).run();
+      }
     });
   </script>
 </body>
