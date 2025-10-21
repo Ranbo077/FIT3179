@@ -19,35 +19,7 @@
       margin: 0 auto !important;
       display: block !important;
     }
-    .map-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 30px;
-      margin: 28px auto;
-      max-width: 980px;
-    }
-    #map {
-      flex-shrink: 0;
-    }
-    .filter-container {
-      margin-top: 50px;
-      min-width: 200px;
-    }
-    .filter-container label {
-      font-weight: 600;
-      margin-bottom: 8px;
-      display: block;
-      color: #333;
-    }
-    .filter-container select {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-      background: white;
-    }
+
     .dashboard-footer {
       text-align: center;
       margin-top: 40px;
@@ -61,28 +33,65 @@
       font-size: 14px;
       font-style: italic;
     }
+
+    .map-description {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #4B8BBE;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .chart-description {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #FFA45B;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .insight-title {
+      max-width: 800px;
+      margin: 15px auto 10px auto;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      line-height: 1.3;
+      padding: 0 20px;
+    }
   </style>
 </head>
 <body>
   <h2>Marriage and Divorce Rates Across Australia (2024)</h2>
-  <div class="map-container">
-    <div id="map" class="vis"></div>
-    <div class="filter-container">
-      <label for="state-select">Select State:</label>
-      <select id="state-select">
-        <option value="All States">All States</option>
-        <option value="New South Wales">New South Wales</option>
-        <option value="Victoria">Victoria</option>
-        <option value="Queensland">Queensland</option>
-        <option value="South Australia">South Australia</option>
-        <option value="Western Australia">Western Australia</option>
-        <option value="Tasmania">Tasmania</option>
-        <option value="Northern Territory">Northern Territory</option>
-        <option value="Australian Capital Territory">Australian Capital Territory</option>
-      </select>
-    </div>
+
+  <div class="insight-title">
+    South Australia and Northern Territory are well above the national marriage average; Western Australia is the lowest.
   </div>
+
+  <div id="map" class="vis"></div>
+
+  <div class="map-description">
+    <p>This choropleth shows marriage rates by state/territory in 2024 (per 1,000 people aged 16+, ABS). Darker blues indicate higher rates, and the tooltip also reveals each state's divorce rate for context. The national average is ~3.6. South Australia (7.0) and Northern Territory (6.2) sit clearly above average; ACT (4.5), NSW (3.9) and Victoria (3.5) are around/slightly above the average; while Queensland (1.4), Tasmania (1.3) and Western Australia (0.8) are notably lower. The spatial pattern suggests higher marriage intensity in parts of the centre–south, with lower rates in the far west and the northern east coast.</p>
+    <p><em>Data: ABS Marriages & Divorces 2024; unit per 1,000 (16+). Basemap: Natural Earth (state boundaries) processed in Mapshaper; projection: Mercator.</em></p>
+  </div>
+
+  <div class="insight-title">
+    High marriage rates do not necessarily align with high divorce rates across states.
+  </div>
+
   <div id="chart" class="vis"></div>
+
+  <div class="chart-description">
+    <p>This grouped bar chart compares marriage (blue) and divorce (orange) rates across Australian states/territories in 2024 (per 1,000 people aged 16+). The red dashed national marriage average (~3.6) provides a benchmark. South Australia (7.0) and Northern Territory (6.2) are clearly above average, while Western Australia (0.8), Tasmania (1.3) and Queensland (1.4) sit well below it. Divorce rates are generally moderate and vary by region—highest in Northern Territory (~4.9) and Queensland (~3.0), and lowest in Western Australia (~0.4) and Tasmania (~0.6). Taken together, the chart shows that high marriage rates do not necessarily coincide with high divorce rates, highlighting distinct demographic and cultural patterns across states.</p>
+    <p><em>Data: ABS Marriages & Divorces 2024; unit per 1,000 (16+). Visualization: Vega-Lite.</em></p>
+  </div>
 
   <footer class="dashboard-footer">
     <p>This dashboard allows comparison of marriage and divorce rates across Australian states based on ABS 2024 data.</p>
@@ -93,31 +102,48 @@
     const week9Map = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "title": {
-        "text": "Australia — Marriage rate by state, 2024",
-        "subtitle": "Data Source: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"
+        "text": "Australia — Rate by state, 2024",
+        "subtitle": "Data: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"
       },
-      "width": 580,
-      "height": 420,
+      "width": 760,
+      "height": 520,
+
       "params": [
         {
+          "name": "rateChoice",
+          "value": "Marriage rate",
+          "bind": {"input":"select","options":["Marriage rate","Divorce rate"], "name":"Colour by: "}
+        },
+        {
           "name": "state_filter",
+          "bind": {
+            "input": "select",
+            "options": [
+              "All States",
+              "New South Wales",
+              "Victoria",
+              "Queensland",
+              "South Australia",
+              "Western Australia",
+              "Tasmania",
+              "Northern Territory",
+              "Australian Capital Territory"
+            ],
+            "name": "Select State: "
+          },
           "value": "All States"
         }
       ],
+
       "layer": [
         {
-          "data": {
-            "graticule": {
-              "step": [5, 5],
-              "extent": [[110, -45], [160, -10]]
-            }
-          },
-          "mark": {"type": "geoshape", "stroke": "#8fa0a8", "strokeWidth": 0.8, "fill": null, "opacity": 0.9, "clip": true}
+          "data": { "graticule": { "step": [15, 15] } },
+          "mark": { "type": "geoshape", "stroke": "#dbe3ea", "strokeWidth": 0.6, "fill": null, "opacity": 0.6, "clip": true }
         },
         {
           "data": {
             "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/australia_states.json",
-            "format": {"type": "topojson", "feature": "australia_states.json"}
+            "format": { "type": "topojson", "feature": "australia_states.json" }
           },
           "transform": [
             {
@@ -127,98 +153,160 @@
                   "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv"
                 },
                 "key": "state",
-                "fields": [
-                  "marriage_rate_per_1000_2024",
-                  "divorce_rate_per_1000_2024"
-                ]
+                "fields": ["marriage_rate_per_1000_2024", "divorce_rate_per_1000_2024"]
               }
             },
-            {
-              "filter": "state_filter == 'All States' || datum['properties.name'] == state_filter"
-            }
+            { "calculate": "rateChoice === 'Marriage rate' ? datum.marriage_rate_per_1000_2024 : datum.divorce_rate_per_1000_2024", "as": "rate_for_color" },
+            { "filter": "state_filter == 'All States' || datum['properties.name'] == state_filter" }
           ],
-          "projection": {"type": "mercator", "center": [133, -28], "scale": 800},
-          "mark": {"type": "geoshape", "stroke": "#ffffff", "strokeWidth": 1},
+          "projection": { "type": "mercator", "center": [133, -28], "scale": 900 },
+          "mark": { "type": "geoshape" },
           "encoding": {
             "color": {
-              "field": "marriage_rate_per_1000_2024",
+              "field": "rate_for_color",
               "type": "quantitative",
-              "title": "Marriage rate (per 1,000, age 16+)",
-              "scale": {"scheme": "blues", "domain": [0, 8], "naColor": "#eeeeee"}
+              "title": {"expr":"rateChoice + ' (per 1,000, 16+)'"},
+              "scale": { "scheme": "blues", "domain": [0, 8], "unknown": "#eeeeee" },
+              "legend": { "orient": "right" }
+            },
+            "stroke": {
+              "condition": { "test": "datum['properties.name'] == state_filter && state_filter != 'All States'", "value": "#111827" },
+              "value": "#ffffff"
+            },
+            "strokeWidth": {
+              "condition": { "test": "datum['properties.name'] == state_filter && state_filter != 'All States'", "value": 2.5 },
+              "value": 1
             },
             "tooltip": [
-              {"field": "properties.name", "title": "State/Territory"},
-              {"field": "marriage_rate_per_1000_2024", "title": "Marriage rate", "format": ".1f"},
-              {"field": "divorce_rate_per_1000_2024", "title": "Divorce rate", "format": ".1f"}
+              { "field": "properties.name", "title": "State/Territory" },
+              { "field": "marriage_rate_per_1000_2024", "title": "Marriage rate", "format": ".1f" },
+              { "field": "divorce_rate_per_1000_2024", "title": "Divorce rate", "format": ".1f" }
             ]
           }
         }
       ],
-      "config": {"view": {"stroke": null}, "background": "white", "geoshape": {"invalid": null}}
+
+      "config": { "view": { "stroke": null }, "background": "white" }
     };
 
     // ---- Week 10 Chart (Marriage vs Divorce Rates Comparison) ----
     const week10Chart = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": {"text": "Marriage vs Divorce Rates by State, 2024",
-                "subtitle": "Data Source: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"},
+      "width": 760,
+      "height": 480,
+      "title": {
+        "text": "Marriage vs Divorce Rates by State, 2024",
+        "subtitle": "Data: ABS Marriages & Divorces 2024 · Unit: per 1,000 people aged 16+"
+      },
       "data": {
         "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv"
       },
+
+      "transform": [
+        { "fold": ["marriage_rate_per_1000_2024", "divorce_rate_per_1000_2024"], "as": ["metric", "value"] },
+        { "calculate": "datum.metric === 'marriage_rate_per_1000_2024' ? 'Marriage rate' : 'Divorce rate'", "as": "Metric" }
+      ],
+
+
+
       "layer": [
         {
+          // Add legend-based filtering for interactive selection
           "params": [
-            {"name": "rate_filter", "select": {"type": "point", "fields": ["RateType"], "empty": "all"}, "bind": "legend"}
+            {"name": "rate_filter", "select": {"type": "point", "fields": ["Metric"], "empty": "all"}, "bind": "legend"}
           ],
           "transform": [
-            {"fold": ["marriage_rate_per_1000_2024", "divorce_rate_per_1000_2024"], "as": ["RateType", "Rate"]},
-            {"calculate": "datum['State/Territory'] || datum.State || datum.state || datum['State '] || 'Unknown'", "as": "State"},
             {"filter": {"param": "rate_filter"}}
           ],
-          "mark": {"type": "bar"},
+          "mark": { "type": "bar" },
           "encoding": {
-            "x": {"field": "State", "type": "nominal", "title": "State/Territory", "sort": "-y"},
-            "xOffset": {"field": "RateType"},
-            "y": {"field": "Rate", "type": "quantitative", "title": "Rate per 1,000"},
+            "x": {
+              "field": "state", "type": "nominal", "title": "State/Territory",
+              "sort": {"op":"mean","field":"value","order":"descending"},
+              "axis": {"labelAngle": 30, "labelFontSize": 11}
+            },
+            "xOffset": { "field": "Metric" },
+            "y": {
+              "field": "value", "type": "quantitative", "title": "Rate per 1,000",
+              "scale": { "domain": [0, 8] },
+              "axis": {"labelFontSize": 11, "titleFontSize": 12, "grid": true}
+            },
             "color": {
-              "field": "RateType","type": "nominal","title": "Rate Type",
-              "scale": {"domain": ["marriage_rate_per_1000_2024","divorce_rate_per_1000_2024"], "range": ["#1f77b4","#ff7f0e"]}
+              "field": "Metric", "type": "nominal", "title": "Rate",
+              "scale": { "domain": ["Marriage rate", "Divorce rate"], "range": ["#4B8BBE", "#FFA45B"] }
             },
             "tooltip": [
-              {"field": "State", "title": "State"},
-              {"field": "RateType", "title": "Type"},
-              {"field": "Rate", "title": "Rate per 1,000", "format": ".1f"}
+              { "field": "state", "title": "State" },
+              { "field": "Metric", "title": "Type" },
+              { "field": "value", "title": "Rate per 1,000", "format": ".1f" }
             ]
           }
         },
-        {"mark": {"type": "rule", "color": "red", "strokeDash": [4, 2]}, "encoding": {"y": {"datum": 5.5}}},
-        {"mark": {"type": "text", "align": "left", "dx": 5, "dy": -5, "color": "red"}, "encoding": {"y": {"datum": 5.5}, "text": {"value": "National Avg ≈ 5.5"}}}
+
+        // —— Average dashed line (disable this layer's own axis) ——
+        {
+          "data": { "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv" },
+          "transform": [
+            { "aggregate": [{ "op": "mean", "field": "marriage_rate_per_1000_2024", "as": "avg_m" }] }
+          ],
+          "mark": { "type": "rule", "color": "#ef4444", "strokeDash": [6, 4] },
+          "encoding": { "y": { "field": "avg_m", "type": "quantitative" } }
+        },
+
+        // —— Average annotation (also disable axis) ——
+        {
+          "data": { "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv" },
+          "transform": [
+            { "aggregate": [{ "op": "mean", "field": "marriage_rate_per_1000_2024", "as": "avg_m" }] },
+            { "calculate": "'National Avg ≈ ' + format(datum.avg_m, '.1f')", "as": "avg_label" }
+          ],
+          "mark": { "type": "text", "align": "left", "dx": 6, "dy": -6, "color": "#ef4444" },
+          "encoding": {
+            "y": { "field": "avg_m", "type": "quantitative" },
+            "x": { "value": 5 },
+            "text": { "field": "avg_label" }
+          }
+        },
+
+        // —— Only add bar-top labels for "Marriage rate" (aligned with bar xOffset) ——
+        {
+          "transform": [{ "filter": "datum.Metric === 'Marriage rate'" }],
+          "mark": { "type": "text", "dy": -6, "fontSize": 11, "color": "#334155" },
+          "encoding": {
+            "x": { "field": "state", "type": "nominal" },
+            "xOffset": { "field": "Metric" },
+            "y": { "field": "value", "type": "quantitative" },
+            "text": { "field": "value", "format": ".1f" }
+          }
+        },
+
+        // —— Additional description for the average line (light gray) ——
+        {
+          "data": { "url": "https://raw.githubusercontent.com/Ranbo077/FIT3179/main/WEEK9/Marriage_and_Divorce_Rates_Per1000_2024.csv" },
+          "transform": [
+            { "aggregate": [{ "op": "mean", "field": "marriage_rate_per_1000_2024", "as": "avg_m" }] }
+          ],
+          "mark": { "type": "text", "align": "right", "dx": -10, "dy": 12, "fontSize": 10, "color": "#888888" },
+          "encoding": {
+            "y": { "field": "avg_m", "type": "quantitative" },
+            "x": { "value": 760 },
+            "text": { "value": "National marriage average (2024), ABS" }
+          }
+        }
       ],
-      "width": 720,
-      "height": 480
+
+      "config": { "axis": { "grid": true, "labelFontSize": 11, "titleFontSize": 12 } }
     };
 
     // Render both visualizations
-    let mapView;
-
     vegaEmbed("#map", week9Map, {
       actions: false,
       renderer: "svg"
-    }).then(result => {
-      mapView = result.view;
     });
 
     vegaEmbed("#chart", week10Chart, {
       actions: false,
       renderer: "svg"
-    });
-
-    // Add custom filter control
-    document.getElementById('state-select').addEventListener('change', function(event) {
-      const selectedState = event.target.value;
-      if (mapView) {
-        mapView.signal('state_filter', selectedState).run();
-      }
     });
   </script>
 </body>
